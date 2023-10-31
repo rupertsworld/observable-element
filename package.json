@@ -1,6 +1,6 @@
 {
   "name": "observable-element",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A lightweight layer over HTML Custom Elements, that adds the ability to observe changes to properties & attributes, reflect them, and call a function whenever they change.",
   "main": "./index.js",
   "types": "./index.d.ts",
