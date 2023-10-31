@@ -1,12 +1,9 @@
 {
   "name": "observable-element",
-  "version": "0.1.2",
+  "version": "0.1.5",
   "description": "A lightweight layer over HTML Custom Elements, that adds the ability to observe changes to properties & attributes, reflect them, and call a function whenever they change.",
-  "main": "./index.js",
-  "types": "./index.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
   "author": "Rupert Manfredi <mail@ruperts.world>",
-  "license": "ISC"
+  "license": "MIT"
 }
