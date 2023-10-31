@@ -3,18 +3,20 @@ class ObservableElement extends HTMLElement {
     const props = properties;
     this._callbacks = {};
     this._connected = false;
-    this._freezeProps = false;
 
     /* Functions for setting/getting props and attributes */
 
-    const setProp = (prop, value, shouldNotReflect) => {
-      if (this._freezeProps) {
-        this._freezeProps = false;
-        return;
+    const canBeReflected = (value) => {
+      return ['string', 'number'].includes(typeof value);
+    };
+
+    const setProp = (name, value) => {
+      if (this.propertyChangedCallback) {
+        this.propertyChangedCallback(name, getProp(name), value);
       }
-      this['_' + prop] = value;
-      if (!shouldNotReflect) reflectPropToAttributes(prop, value);
-      if (this._connected) this._callbacks[prop]();
+      this['_' + name] = value;
+      reflectPropToAttributes(name, value);
+      if (this._connected) this._callbacks[name]();
     };
 
     const getProp = (prop) => {
@@ -22,11 +24,10 @@ class ObservableElement extends HTMLElement {
     };
 
     const reflectPropToAttributes = (prop, value) => {
-      console.log(typeof getProp(prop));
-      if (['string', 'number'].includes(typeof getProp(prop))) {
+      console.log(typeof value, canBeReflected(value));
+      if (canBeReflected(value)) {
         this.setAttribute(prop, value);
       } else {
-        this._freezeProps = true;
         this.removeAttribute(prop);
       }
     };
@@ -63,16 +64,28 @@ class ObservableElement extends HTMLElement {
       mutationsList.forEach((mutation) => {
         if (mutation.type === 'attributes') {
           // When any attributes change, call the attributeChangedCallback
-          // and set the props
+          // and set the props. We need this because there's no static
+          // observedAttributes array.
           const name = mutation.attributeName;
-          if (this.attributeChangedCallback) {
-            this.attributeChangedCallback(
-              name,
-              this['_' + name],
-              this.getAttribute(name)
-            );
+          const attribute = this.getAttribute(name);
+          const prop = getProp(name);
+
+          // Abort if there is no need for attribute change
+          // if both prop and attribute are undefined, or if
+          // they're already synced
+          if (
+            attribute === prop ||
+            (typeof prop === 'number' && attribute === prop.toString()) ||
+            (!canBeReflected(prop) && attribute === null)
+          ) {
+            return;
           }
-          setProp(name, this.getAttribute(name), true);
+
+          if (this.attributeChangedCallback) {
+            this.attributeChangedCallback(name, prop, attribute);
+          } else {
+            setProp(name, attribute, true);
+          }
         } else if (
           mutation.type === 'childList' &&
           mutation.addedNodes.length > 0
@@ -85,6 +98,7 @@ class ObservableElement extends HTMLElement {
         }
       });
     });
+
     observer.observe(this, { attributes: true, childList: true });
   }
 }
