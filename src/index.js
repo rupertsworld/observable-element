@@ -14,17 +14,16 @@ class ObservableElement extends HTMLElement {
       if (this.propertyChangedCallback) {
         this.propertyChangedCallback(name, getProp(name), value);
       }
-      this['_' + name] = value;
+      this['_observable_' + name] = value;
       reflectPropToAttributes(name, value);
       if (this._connected) this._callbacks[name]();
     };
 
     const getProp = (prop) => {
-      return this['_' + prop];
+      return this['_observable_' + prop];
     };
 
     const reflectPropToAttributes = (prop, value) => {
-      console.log(typeof value, canBeReflected(value));
       if (canBeReflected(value)) {
         this.setAttribute(prop, value);
       } else {
