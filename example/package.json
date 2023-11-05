@@ -8,9 +8,6 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "observable-element": "^0.1.1"
-  },
   "devDependencies": {
     "vite": "^4.5.0"
   }

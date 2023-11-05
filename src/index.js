@@ -38,7 +38,7 @@ class ObservableElement extends HTMLElement {
 
       // Update all props/attributes on initialize
       // Prefer props, then attributes
-      if (this[prop]) {
+      if (this[prop] !== undefined) {
         setProp(prop, this[prop]);
       } else if (this.getAttribute(prop) !== null) {
         setProp(prop, this.getAttribute(prop));
@@ -98,6 +98,7 @@ class ObservableElement extends HTMLElement {
       });
     });
 
+    callback.bind(this)();
     observer.observe(this, { attributes: true, childList: true });
   }
 }
